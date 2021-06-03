@@ -1,45 +1,40 @@
 package com.example.jwt.authprojectjwt.controller;
 
+import com.example.jwt.authprojectjwt.model.User;
 import com.example.jwt.authprojectjwt.model.UserDto;
 import com.example.jwt.authprojectjwt.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequiredArgsConstructor
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<?> save(@RequestBody UserDto user){
-        return ResponseEntity.ok(userService.save(user));
+    //@Secured({"ROLE_ADMIN", "ROLE_USER"})
+    @PreAuthorize("hasRole('ADMIN')")
+    @RequestMapping(value="/users", method = RequestMethod.GET)
+    public List<User> listUser(){
+        return userService.findAll();
     }
 
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable long id){
-        userService.delete(id);
-        return ResponseEntity.ok().build();
+    //@Secured("ROLE_USER")
+    @PreAuthorize("hasRole('USER')")
+    ////@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
+    public User getOne(@PathVariable(value = "id") Long id){
+        return userService.findById(id);
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<?> update(@PathVariable long id, @RequestBody UserDto userDto){
-        return ResponseEntity.ok(userService.update(userDto,id));
+    @RequestMapping(value="/signup", method = RequestMethod.POST)
+    public User saveUser(@RequestBody UserDto user){
+        return userService.save(user);
     }
-
-    @GetMapping
-    public ResponseEntity<List<?>> findAll(){
-        return ResponseEntity.ok(userService.findAll());
-    }
-
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<?> findById(@PathVariable long id){
-        return ResponseEntity.ok(userService.finById(id));
-    }
+    
 }
