@@ -3,7 +3,6 @@ package com.example.jwt.authprojectjwt.controller;
 import com.example.jwt.authprojectjwt.config.TokenProvider;
 import com.example.jwt.authprojectjwt.model.AuthToken;
 import com.example.jwt.authprojectjwt.model.LoginUser;
-import com.example.jwt.authprojectjwt.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,11 +23,8 @@ public class AuthenticationController {
     @Autowired
     private TokenProvider jwtTokenUtil;
 
-    @Autowired
-    private UserService userService;
-
     @RequestMapping(value = "/generate-token", method = RequestMethod.POST)
-    public ResponseEntity<?> register(@RequestBody LoginUser loginUser) throws AuthenticationException {
+    public ResponseEntity register(@RequestBody LoginUser loginUser) throws AuthenticationException {
 
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -40,4 +36,5 @@ public class AuthenticationController {
         final String token = jwtTokenUtil.generateToken(authentication);
         return ResponseEntity.ok(new AuthToken(token));
     }
+
 }
