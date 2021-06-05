@@ -66,8 +66,18 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDto save(UserDto user) {
+        if(Optional.ofNullable(userRepository
+                .findByUsername(user.getUsername()))
+                .isPresent()){
+                throw new JwtException("Username already exists");
+        }
         User newUser = modelMapper.map(user, User.class);
         newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
         return modelMapper.map(userRepository.save(newUser), UserDto.class);
+    }
+
+    public static void main(String[] args) {
+        BCryptPasswordEncoder b = new BCryptPasswordEncoder();
+        System.out.println(b.encode("teste123"));
     }
 }
